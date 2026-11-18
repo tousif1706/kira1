@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Code Reviewer</title>
+    <meta
+      name="description"
+      content="Instant AI code review workbench for Python, C++, and Java with bug detection, refactoring suggestions, complexity analysis, and vertical Before / After diffs."
+    />
+    <meta property="og:title" content="AI Code Reviewer" />
+    <meta
+      property="og:description"
+      content="Instant AI code review workbench for Python, C++, and Java with bug detection, refactoring suggestions, complexity analysis, and vertical Before / After diffs."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..600;1,9..40,400..600&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <a href="#workspace" class="brand-wordmark">AI Code Reviewer</a>
+
+          <nav aria-label="Primary navigation" class="topbar-nav">
+            <a href="#workspace" class="nav-link">Workspace</a>
+            <a href="#how-it-works" class="nav-link">How It Works</a>
+            <a href="#complexity-scale" class="nav-link">Complexity Scale</a>
+            <button type="submit" form="workbench-form" name="action" value="preset:py-invoice" id="nav-load-example" class="nav-link nav-link-btn">
+              Sample Bugs
+            </button>
+          </nav>
+
+          <div class="topbar-actions">
+            <button type="submit" form="workbench-form" name="action" value="review" id="topbar-review-btn" class="btn btn-primary btn-sm">
+              Review Code
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main id="workspace" class="main-container">
+        <form id="workbench-form" method="POST" action="/#workspace">
+          <input type="hidden" name="session_id" value="{{SESSION_ID}}" />
+          <input type="hidden" name="language" value="{{LANGUAGE}}" />
+          <input type="hidden" name="active_tab" value="{{ACTIVE_TAB}}" />
+          <input type="hidden" name="expanded_bug" value="{{EXPANDED_BUG}}" />
+          <input type="hidden" name="highlighted_line" value="{{HIGHLIGHTED_LINE}}" />
+
+          <div class="workbench-grid">
+            <aside aria-label="Review settings" class="sidebar-card">
+              <div class="sidebar-section">
+                <h2 class="sidebar-heading">Settings</h2>
+                <p class="sidebar-subtext">
+                  Select the language for syntax inspection and control-flow complexity scoring.
+                </p>
+
+                <div class="language-list" role="radiogroup" aria-label="Programming language" id="language-selector">
+                  {{LANGUAGE_BUTTONS}}
+                </div>
+              </div>
+
+              <div class="sidebar-section sidebar-divider">
+                <h3 class="sidebar-subheading">How It Works</h3>
+                <ol class="steps-list">
+                  <li><strong>01.</strong> Paste or write your code in the editor</li>
+                  <li><strong>02.</strong> Click <strong>Review Code</strong> to scan</li>
+                  <li><strong>03.</strong> Inspect bugs, suggestions, complexity &amp; diff</li>
+                </ol>
+              </div>
+
+              <div class="sidebar-section sidebar-divider">
+                <h3 class="sidebar-subheading">Included Checks</h3>
+                <ul class="checks-list">
+                  <li>Bugs &amp; edge-case detection</li>
+                  <li>Refactoring &amp; style guidance</li>
+                  <li>Cyclomatic complexity &amp; MI</li>
+                  <li>0–10 code health score</li>
+                  <li>Side-by-side improved diff</li>
+                </ul>
+              </div>
+            </aside>
+
+            <div class="workspace-column">
+              <section class="hero-card">
+                <div class="hero-content">
+                  <div class="hero-copy">
+                    <h1 class="hero-title">Instant AI Code Review</h1>
+                    <p class="hero-description">
+                      Paste your code to detect bugs, uncover refactoring improvements, calculate cyclomatic complexity, and compare a cleaner AI-improved diff.
+                    </p>
+                  </div>
+
+                  <div class="hero-metrics tabular-nums">
+                    <div class="hero-metric">
+                      <span class="hero-metric-label">Language</span>
+                      <span class="hero-metric-value" id="hero-active-language">{{LANGUAGE}}</span>
+                    </div>
+                    <div class="hero-metric-sep" aria-hidden="true"></div>
+                    <div class="hero-metric">
+                      <span class="hero-metric-label">Inspection</span>
+                      <span class="hero-metric-value">5 Modules</span>
+                    </div>
+                    <div class="hero-metric-sep" aria-hidden="true"></div>
+                    <div class="hero-metric">
+                      <span class="hero-metric-label">Health Scale</span>
+                      <span class="hero-metric-value">0–10 Rating</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div class="split-panels">
+                <section aria-label="Code Editor" class="panel-card editor-panel">
+                  <div class="panel-header">
+                    <div class="panel-title-group">
+                      <h2 class="panel-title">Your Code</h2>
+                      <span class="meta-dot" aria-hidden="true">·</span>
+                      <div class="editor-meta tabular-nums" id="editor-meta">
+                        {{EDITOR_META}}
+                      </div>
+                    </div>
+
+                    <div class="panel-controls">
+                      <label for="preset-select" class="sr-only">Load example code</label>
+                      <select id="preset-select" name="preset_id" class="preset-select" onchange="this.form.submit()">
+                        <option value="" disabled selected>Load example...</option>
+                        <option value="py-default">Starter Snippet (Python)</option>
+                        <option value="py-invoice">Invoice &amp; Discount Engine (Python)</option>
+                        <option value="cpp-search">Binary Search &amp; Bounds (C++)</option>
+                        <option value="java-cache">User Session Lookup (Java)</option>
+                      </select>
+
+                      <button
+                        type="button"
+                        id="copy-code-btn"
+                        class="btn btn-outline btn-xs"
+                        onclick="navigator.clipboard?.writeText(document.getElementById('code-textarea').value);this.textContent='Copied';setTimeout(()=>this.textContent='Copy',1500)"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="editor-body">
+                    <div id="line-gutter" class="line-gutter tabular-nums" aria-hidden="true">{{LINE_GUTTER}}</div>
+                    <textarea
+                      id="code-textarea"
+                      name="code"
+                      class="code-textarea"
+                      spellcheck="false"
+                      aria-label="Source code input"
+                      placeholder="Paste your code here..."
+                      onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();this.form.submit();}"
+                    >{{CODE}}</textarea>
+                  </div>
+
+                  <div class="panel-footer">
+                    <p class="shortcut-hint">
+                      Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to review
+                    </p>
+
+                    <div class="footer-actions">
+                      <button type="submit" name="action" value="clear" id="clear-results-btn" class="btn btn-outline btn-md {{CLEAR_HIDDEN}}">
+                        Clear Results
+                      </button>
+                      <button type="submit" name="action" value="review" id="run-review-btn" class="btn btn-primary btn-md">
+                        Review Code
+                      </button>
+                    </div>
+                  </div>
+                </section>
+
+                <section aria-label="Review Results" class="panel-card results-panel" id="results-panel">
+                  {{RESULTS_HTML}}
+                </section>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <section id="how-it-works" class="content-section">
+          <div class="section-header">
+            <h2 class="section-title">Structured Review Workflow</h2>
+            <p class="section-subtitle">
+              Every submission combines static control-flow measurement with contextual reasoning across correctness, clarity, and maintainability.
+            </p>
+          </div>
+
+          <div class="workflow-grid">
+            <article class="workflow-card">
+              <h3>01. Line-Level Defect Scan</h3>
+              <p>
+                Identifies null dereferences, off-by-one loops, unhandled edge cases, and unsafe mutations with line numbers linked directly to the editor.
+              </p>
+            </article>
+            <article class="workflow-card">
+              <h3>02. Control-Flow Complexity</h3>
+              <p>
+                Measures cyclomatic branch density, nesting depth, and a 0–100 Maintainability Index for each function or method block.
+              </p>
+            </article>
+            <article class="workflow-card">
+              <h3>03. Side-by-Side Refactored Diff</h3>
+              <p>
+                Generates an idiomatic rewrite in your chosen language so you can compare changes and apply them back into the editor in one click.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="complexity-scale" class="content-section">
+          <div class="section-header">
+            <h2 class="section-title">Cyclomatic Complexity Reference</h2>
+            <p class="section-subtitle">
+              Standard branching thresholds used to score functions in the Complexity tab.
+            </p>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Cyclomatic Score</th>
+                  <th>Risk Classification</th>
+                  <th>Recommended Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono rank-a">A</td>
+                  <td class="mono tabular-nums">1 – 5</td>
+                  <td>Low Risk · Simple</td>
+                  <td class="muted">Easy to test and reason about; keep as-is.</td>
+                </tr>
+                <tr>
+                  <td class="mono rank-b">B</td>
+                  <td class="mono tabular-nums">6 – 10</td>
+                  <td>Moderate · Well-Structured</td>
+                  <td class="muted">Acceptable branching; ensure branch unit tests exist.</td>
+                </tr>
+                <tr>
+                  <td class="mono rank-c">C</td>
+                  <td class="mono tabular-nums">11 – 20</td>
+                  <td>Complex · Elevated Risk</td>
+                  <td class="muted">Extract helper functions and flatten nested conditionals.</td>
+                </tr>
+                <tr>
+                  <td class="mono rank-d">D</td>
+                  <td class="mono tabular-nums">21+</td>
+                  <td>High Risk · Fragile</td>
+                  <td class="muted">Refactor into smaller single-responsibility units immediately.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <span>AI Code Reviewer · Python, C++ &amp; Java</span>
+          <a href="#workspace" class="footer-link">Back to Editor</a>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
